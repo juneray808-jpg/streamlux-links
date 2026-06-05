@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.terry.streamlux.io",
+      "sha256_cert_fingerprints": [
+        "BD:35:5A:78:14:EA:E8:2C:B7:AE:EC:EC:DA:61:C0:1B:FA:07:DA:92:4F:F5:E7:26:7F:3C:1D:1F:F6:8F:C5:97"
+      ]
+    }
+  }
+]
