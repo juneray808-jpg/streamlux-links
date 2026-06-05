@@ -1,0 +1,14 @@
+{
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/post/:id", "destination": "/open.html" },
+    { "source": "/profile/:id", "destination": "/open.html" },
+    { "source": "/live/:id", "destination": "/open.html" }
+  ],
+  "headers": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
+  ]
+}
