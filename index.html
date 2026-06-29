@@ -1,28 +1,133 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StreamLux</title>
-<style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
-  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:radial-gradient(circle at 50% 25%, #2a1758 0%, #0c0a1a 60%, #050409 100%); color:#fff; text-align:center; padding:24px; }
-  .wrap { max-width:420px; }
-  .logo { font-size:34px; font-weight:800; letter-spacing:.5px;
-    background:linear-gradient(90deg,#9b5cf6,#0cf0f6); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  p { color:#b9b3d6; line-height:1.5; margin:14px 0 28px; }
-  .btn { display:inline-block; padding:14px 26px; border-radius:999px; font-weight:700; text-decoration:none;
-    background:linear-gradient(90deg,#9b5cf6,#0cf0f6); color:#0c0a1a; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StreamLux — Watch, Match &amp; Connect with Creators</title>
+  <meta name="description" content="StreamLux is a mobile social platform for vertical video, instant matching, messaging, and creator monetization. Join early and shape the future of live connection." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
 </head>
 <body>
-  <div class="wrap">
-    <div class="logo">StreamLux</div>
-    <p>Watch, match, and go live. Get the app to start streaming.</p>
-    <a class="btn" href="https://play.google.com/store/apps/details?id=com.terry.streamlux.io">Get StreamLux</a>
-  </div>
+  <div class="page-bg" aria-hidden="true"></div>
+  <div id="site-header" data-active="home"></div>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="badge">Now on Google Play</span>
+          <h1>Where creators meet,<br /><span class="accent-cyan">connect &amp; grow</span></h1>
+          <p class="lead">
+            StreamLux is a next-generation mobile platform built for vertical video discovery,
+            face-to-face connections, and meaningful creator–fan relationships. Scroll an endless
+            feed, match with people in seconds, chat without limits — and earn as a creator from day one.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.terry.streamlux.io">Get StreamLux</a>
+            <a class="btn btn-ghost" href="/about.html">Learn more</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <img src="/assets/images/hero-home.png" alt="StreamLux app showcasing vertical video feed and social features" width="480" height="960" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="container">
+        <div class="stats">
+          <div class="stat"><strong>Video</strong><span>TikTok-style feed</span></div>
+          <div class="stat"><strong>Match</strong><span>Instant connections</span></div>
+          <div class="stat"><strong>Chat</strong><span>DMs &amp; calls</span></div>
+          <div class="stat"><strong>Coins</strong><span>Creator economy</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="screenshots">
+      <div class="container">
+        <div class="text-center mb-lg">
+          <h2>Built for how you <span class="accent-cyan">actually</span> connect</h2>
+          <p class="lead" style="margin-inline:auto">Explore creators globally, discover trending content, match in seconds, and keep conversations going — all in one beautiful app.</p>
+        </div>
+        <div class="screenshots" role="list">
+          <figure class="screenshot-item" role="listitem">
+            <img src="/assets/screenshots/explore-creators.png" alt="Explore New Creators — global creator grid with follow and video call" width="400" height="800" loading="lazy" />
+            <figcaption>Explore creators</figcaption>
+          </figure>
+          <figure class="screenshot-item" role="listitem">
+            <img src="/assets/screenshots/face-to-face.png" alt="Face-to-Face Connections — 1-on-1 video call" width="400" height="800" loading="lazy" />
+            <figcaption>Face-to-face calls</figcaption>
+          </figure>
+          <figure class="screenshot-item" role="listitem">
+            <img src="/assets/screenshots/trending-feed.png" alt="Discover endless trending content from creators worldwide" width="400" height="800" loading="lazy" />
+            <figcaption>Trending feed</figcaption>
+          </figure>
+          <figure class="screenshot-item" role="listitem">
+            <img src="/assets/screenshots/matching.png" alt="Match and connect in seconds with gender and age filters" width="400" height="800" loading="lazy" />
+            <figcaption>Instant matching</figcaption>
+          </figure>
+          <figure class="screenshot-item" role="listitem">
+            <img src="/assets/screenshots/chat-inbox.png" alt="Chat Without Limits — inbox with DMs and notifications" width="400" height="800" loading="lazy" />
+            <figcaption>Chat &amp; inbox</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="text-center mb-lg">Everything you need in one app</h2>
+        <div class="card-grid">
+          <article class="card">
+            <div class="card-icon">🎬</div>
+            <h3>Vertical video feed</h3>
+            <p>Swipe through an endless Explore feed of short-form video from creators around the world — smooth, fast, and built for mobile.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">🌍</div>
+            <h3>Global discovery</h3>
+            <p>Browse creators by region, follow your favorites, and jump into profile grids designed for real connection — not just passive scrolling.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Instant matching</h3>
+            <p>Filter by gender, age, and country — then start a match in seconds. Perfect for spontaneous conversations and new friendships.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">💬</div>
+            <h3>Chat without limits</h3>
+            <p>Direct messages, missed-call alerts, visitor insights, and VIP profile flair — stay close to the people who matter most.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">🪙</div>
+            <h3>Lux Coins economy</h3>
+            <p>Purchase Lux Coins, send gifts, unlock premium interactions, and support creators directly inside the app.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">✨</div>
+            <h3>Early-stage advantage</h3>
+            <p>Join now while StreamLux is growing. Early creators get visibility, community support, and a front-row seat as new features ship.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-band">
+          <h2>Ready to dive in?</h2>
+          <p class="lead" style="margin:0 auto 1.5rem">Download StreamLux today and be part of a platform that puts creators and genuine connection first.</p>
+          <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.terry.streamlux.io">Download on Google Play</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/js/site.js"></script>
 </body>
 </html>
