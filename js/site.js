@@ -79,6 +79,8 @@
       '<a href="' +
       PRIVACY_URL +
       '" rel="noopener">Privacy Policy</a>' +
+      '<a href="/terms.html">Terms &amp; Conditions</a>' +
+      '<a href="/refund-policy.html">Refund Policy</a>' +
       '<a href="' +
       DELETION_URL +
       '" rel="noopener">Account deletion</a>' +
