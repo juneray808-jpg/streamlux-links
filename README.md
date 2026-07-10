@@ -30,3 +30,9 @@ Hosted on **Vercel** → domain `streamlux.io`.
 ## Source
 
 Marketing site pages are maintained in sync with `my-first-project/website/` when updated.
+
+## Playback Lab
+
+`playback-lab/` — StreamLux vertical HLS playback engine laboratory (Expo Dev Client).  
+See `playback-lab/README.md` and `playback-lab/docs/ARCHITECTURE.md`.  
+Does not affect `streamlux.io` Vercel deployment (site root unchanged).
