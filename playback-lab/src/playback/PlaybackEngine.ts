@@ -136,6 +136,15 @@ class PlaybackEngineImpl {
       return;
     }
 
+    instrumentationBus.emit('ownership_validated', {
+      postId: candidate.postId,
+      index: candidate.index,
+      meta: {
+        visibility: candidate.visibilityPercent,
+        source: candidate.source,
+      },
+    });
+
     if (this.candidateStartedAt == null) {
       this.candidateStartedAt = performance.now();
     }
@@ -146,15 +155,9 @@ class PlaybackEngineImpl {
   private commitOwnership(candidate: OwnershipCandidate): void {
     const transferStart = this.candidateStartedAt ?? performance.now();
     const previousPostId = this.owner?.postId ?? null;
-
-    this.silenceCurrentAdapter();
-
-    if (previousPostId) {
-      instrumentationBus.emit('ownership_released', {
-        postId: previousPostId,
-        ownerGeneration: this.ownerGeneration,
-      });
-    }
+    const previousGeneration = this.ownerGeneration;
+    const previousAdapter =
+      previousPostId && this.adapter?.postId === previousPostId ? this.adapter : null;
 
     this.ownerGeneration += 1;
     this.owner = {
@@ -168,6 +171,26 @@ class PlaybackEngineImpl {
     };
     this.pendingCandidate = null;
     this.candidateStartedAt = null;
+
+    instrumentationBus.emit('ownership_committed', {
+      postId: candidate.postId,
+      index: candidate.index,
+      ownerGeneration: this.ownerGeneration,
+    });
+
+    if (previousAdapter) {
+      this.silenceAdapter(previousAdapter, {
+        handoff: true,
+        ownerGeneration: previousGeneration,
+      });
+    }
+
+    if (previousPostId) {
+      instrumentationBus.emit('ownership_released', {
+        postId: previousPostId,
+        ownerGeneration: previousGeneration,
+      });
+    }
 
     instrumentationBus.emit('ownership_gained', {
       postId: candidate.postId,
@@ -194,6 +217,7 @@ class PlaybackEngineImpl {
         postId,
         index: this.owner.index,
         ownerGeneration: this.ownerGeneration,
+        adapterId: this.adapter.adapterId,
       });
       this.adapter.assignSource(hlsUrl);
       this.applyOwnerPlaybackIntent();
@@ -220,6 +244,7 @@ class PlaybackEngineImpl {
       postId,
       index: this.owner.index,
       ownerGeneration: this.ownerGeneration,
+      adapterId: adapter.adapterId,
     });
     adapter.assignSource(hlsUrl);
     this.applyOwnerPlaybackIntent();
@@ -267,6 +292,7 @@ class PlaybackEngineImpl {
           postId: event.postId,
           index: this.owner.index,
           ownerGeneration: this.ownerGeneration,
+          adapterId: this.adapter?.adapterId,
         });
         break;
       case 'ready_for_display':
@@ -274,6 +300,7 @@ class PlaybackEngineImpl {
           postId: event.postId,
           index: this.owner.index,
           ownerGeneration: this.ownerGeneration,
+          adapterId: this.adapter?.adapterId,
         });
         break;
       case 'progress':
@@ -295,6 +322,7 @@ class PlaybackEngineImpl {
           postId: event.postId,
           index: this.owner.index,
           ownerGeneration: this.ownerGeneration,
+          adapterId: this.adapter?.adapterId,
         });
         break;
       case 'end_buffer':
@@ -303,6 +331,7 @@ class PlaybackEngineImpl {
           postId: event.postId,
           index: this.owner.index,
           ownerGeneration: this.ownerGeneration,
+          adapterId: this.adapter?.adapterId,
         });
         if (!this.owner.userPaused) {
           this.owner.phase = 'playing';
@@ -314,6 +343,7 @@ class PlaybackEngineImpl {
           postId: event.postId,
           index: this.owner.index,
           ownerGeneration: this.ownerGeneration,
+          adapterId: this.adapter?.adapterId,
           meta: { message: event.errorMessage ?? 'unknown' },
         });
         break;
@@ -331,11 +361,13 @@ class PlaybackEngineImpl {
       postId: this.owner.postId,
       index: this.owner.index,
       ownerGeneration: this.ownerGeneration,
+      adapterId: this.adapter?.adapterId,
     });
     instrumentationBus.emit('poster_hidden', {
       postId: this.owner.postId,
       index: this.owner.index,
       ownerGeneration: this.ownerGeneration,
+      adapterId: this.adapter?.adapterId,
     });
     if (!this.owner.userPaused) {
       this.owner.phase = 'playing';
@@ -347,6 +379,12 @@ class PlaybackEngineImpl {
       return;
     }
     if (this.owner.hlsUrl) {
+      instrumentationBus.emit('source_assign', {
+        postId: this.owner.postId,
+        index: this.owner.index,
+        ownerGeneration: this.ownerGeneration,
+        adapterId: this.adapter.adapterId,
+      });
       this.adapter.assignSource(this.owner.hlsUrl);
     }
     this.applyOwnerPlaybackIntent();
@@ -363,6 +401,12 @@ class PlaybackEngineImpl {
     }
 
     this.adapter.setVolume(1);
+    instrumentationBus.emit('audio_enabled', {
+      postId: this.owner.postId,
+      index: this.owner.index,
+      ownerGeneration: this.ownerGeneration,
+      adapterId: this.adapter.adapterId,
+    });
     this.assertSingleAudible(this.adapter.adapterId);
     this.adapter.resume();
     if (!this.owner.firstFrameRendered) {
@@ -372,15 +416,30 @@ class PlaybackEngineImpl {
     }
   }
 
-  private silenceCurrentAdapter(): void {
-    if (this.adapter) {
-      this.silenceAdapter(this.adapter);
-    }
-  }
-
-  private silenceAdapter(adapter: NativePlayerAdapter | null): void {
+  private silenceAdapter(
+    adapter: NativePlayerAdapter | null,
+    options?: { handoff?: boolean; ownerGeneration?: number },
+  ): void {
     if (!adapter) return;
+
+    if (options?.handoff) {
+      instrumentationBus.emit('previous_owner_muted', {
+        postId: adapter.postId,
+        ownerGeneration: options.ownerGeneration,
+        adapterId: adapter.adapterId,
+      });
+    }
+
     adapter.setVolume(0);
+
+    if (options?.handoff) {
+      instrumentationBus.emit('previous_owner_paused', {
+        postId: adapter.postId,
+        ownerGeneration: options.ownerGeneration,
+        adapterId: adapter.adapterId,
+      });
+    }
+
     adapter.pause();
     if (this.audibleAdapterId === adapter.adapterId) {
       this.audibleAdapterId = null;

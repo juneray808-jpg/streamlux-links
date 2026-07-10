@@ -5,5 +5,5 @@
     "noUncheckedIndexedAccess": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/*.test.ts"]
+  "exclude": ["**/*.test.ts", "scripts/**"]
 }

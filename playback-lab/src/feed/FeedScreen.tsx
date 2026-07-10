@@ -11,6 +11,10 @@ import { isSupabaseConfigured } from '../data/supabase';
 import type { FeedItem } from '../data/types';
 import { flattenFeedPages, useFeedQuery } from '../hooks/useFeedQuery';
 import { Phase1DevOverlay } from '../instrumentation/Phase1DevOverlay';
+import {
+  isPhase1AOverlayEnabled,
+  Phase1AStartupOverlay,
+} from '../instrumentation/Phase1AStartupOverlay';
 import { FeedCell } from './FeedCell';
 import { useViewabilityBridge } from './ViewabilityBridge';
 
@@ -107,6 +111,7 @@ export function FeedScreen() {
         />
       ) : null}
 
+      {isPhase1AOverlayEnabled() ? <Phase1AStartupOverlay /> : null}
       {__DEV__ ? <Phase1DevOverlay /> : null}
     </View>
   );

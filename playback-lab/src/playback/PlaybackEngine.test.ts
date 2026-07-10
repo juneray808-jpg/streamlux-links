@@ -72,6 +72,27 @@ describe('PlaybackEngine ownership', () => {
     );
   });
 
+  it('emits Phase 1A startup timeline events on commit', () => {
+    const engine = getPlaybackEngine();
+
+    engine.proposeOwnership({
+      postId: 'post-a',
+      index: 0,
+      visibilityPercent: 0.9,
+      source: 'viewability',
+    });
+
+    assert.equal(instrumentationBus.countKind('ownership_candidate'), 1);
+    assert.equal(instrumentationBus.countKind('ownership_validated'), 1);
+    assert.equal(instrumentationBus.countKind('ownership_committed'), 1);
+    assert.equal(instrumentationBus.countKind('ownership_gained'), 1);
+
+    const committed = instrumentationBus
+      .getAll()
+      .find((e) => e.kind === 'ownership_committed');
+    assert.equal(committed?.deltaFromCommitMs, 0);
+  });
+
   it('instruments user pause and resume', () => {
     const engine = getPlaybackEngine();
 
