@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       'expo-build-properties',
       {
         android: { minSdkVersion: 24 },
-        ios: { deploymentTarget: '15.1' },
+        ios: { deploymentTarget: '16.4' },
       },
     ],
     'react-native-video',
