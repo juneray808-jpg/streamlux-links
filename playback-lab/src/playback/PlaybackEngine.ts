@@ -285,9 +285,14 @@ class PlaybackEngineImpl {
       return;
     }
 
+    let dirty = false;
+
     switch (event.kind) {
       case 'load_start':
-        this.owner.phase = 'loading';
+        if (this.owner.phase !== 'loading') {
+          this.owner.phase = 'loading';
+          dirty = true;
+        }
         instrumentationBus.emit('native_load_start', {
           postId: event.postId,
           index: this.owner.index,
@@ -309,14 +314,24 @@ class PlaybackEngineImpl {
           (event.currentTimeSec ?? 0) >= FIRST_FRAME_PROGRESS_SEC
         ) {
           this.markFirstFrame();
-        } else if (!this.owner.userPaused && !this.owner.buffering) {
+          dirty = true;
+        } else if (
+          !this.owner.userPaused &&
+          !this.owner.buffering &&
+          this.owner.phase !== 'playing'
+        ) {
           this.owner.phase = 'playing';
+          dirty = true;
         }
         break;
       case 'buffer':
-        this.owner.buffering = true;
-        if (!this.owner.firstFrameRendered) {
+        if (!this.owner.buffering) {
+          this.owner.buffering = true;
+          dirty = true;
+        }
+        if (!this.owner.firstFrameRendered && this.owner.phase !== 'buffering') {
           this.owner.phase = 'buffering';
+          dirty = true;
         }
         instrumentationBus.emit('native_buffer_start', {
           postId: event.postId,
@@ -326,19 +341,26 @@ class PlaybackEngineImpl {
         });
         break;
       case 'end_buffer':
-        this.owner.buffering = false;
+        if (this.owner.buffering) {
+          this.owner.buffering = false;
+          dirty = true;
+        }
         instrumentationBus.emit('native_buffer_end', {
           postId: event.postId,
           index: this.owner.index,
           ownerGeneration: this.ownerGeneration,
           adapterId: this.adapter?.adapterId,
         });
-        if (!this.owner.userPaused) {
+        if (!this.owner.userPaused && this.owner.phase !== 'playing') {
           this.owner.phase = 'playing';
+          dirty = true;
         }
         break;
       case 'error':
-        this.owner.phase = 'error';
+        if (this.owner.phase !== 'error') {
+          this.owner.phase = 'error';
+          dirty = true;
+        }
         instrumentationBus.emit('native_error', {
           postId: event.postId,
           index: this.owner.index,
@@ -351,7 +373,9 @@ class PlaybackEngineImpl {
         break;
     }
 
-    this.bump();
+    if (dirty) {
+      this.bump();
+    }
   }
 
   private markFirstFrame(): void {
@@ -396,23 +420,29 @@ class PlaybackEngineImpl {
     if (this.owner.userPaused) {
       this.adapter.setVolume(0);
       this.adapter.pause();
-      this.owner.phase = 'paused';
+      if (this.owner.phase !== 'paused') {
+        this.owner.phase = 'paused';
+        this.bump();
+      }
       return;
     }
 
     this.adapter.setVolume(1);
-    instrumentationBus.emit('audio_enabled', {
-      postId: this.owner.postId,
-      index: this.owner.index,
-      ownerGeneration: this.ownerGeneration,
-      adapterId: this.adapter.adapterId,
-    });
+    if (this.audibleAdapterId !== this.adapter.adapterId) {
+      instrumentationBus.emit('audio_enabled', {
+        postId: this.owner.postId,
+        index: this.owner.index,
+        ownerGeneration: this.ownerGeneration,
+        adapterId: this.adapter.adapterId,
+      });
+    }
     this.assertSingleAudible(this.adapter.adapterId);
     this.adapter.resume();
-    if (!this.owner.firstFrameRendered) {
-      this.owner.phase = 'loading';
-    } else {
-      this.owner.phase = 'playing';
+
+    const nextPhase = !this.owner.firstFrameRendered ? 'loading' : 'playing';
+    if (this.owner.phase !== nextPhase) {
+      this.owner.phase = nextPhase;
+      this.bump();
     }
   }
 

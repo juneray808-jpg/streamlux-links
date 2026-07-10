@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import Video, { type OnProgressData, type VideoRef } from 'react-native-video';
-import { toAvVideoSource } from '../data/hlsUrl';
 import type { FeedItem } from '../data/types';
 import { useCellUiState } from '../hooks/usePlaybackEngine';
 import { instrumentationBus } from '../instrumentation/InstrumentationBus';
@@ -26,7 +26,7 @@ type Props = {
  * Only the owner mounts a Video decoder (single owner / single audible player).
  */
 export function FeedCell({ item, index, rowHeight }: Props) {
-  const engine = useMemo(() => getPlaybackEngine(), []);
+  const engine = useRef(getPlaybackEngine()).current;
   const ui = useCellUiState(item.postId);
   const videoRef = useRef<VideoRef>(null);
   const adapterRef = useRef<NativePlayerAdapter | null>(null);
@@ -61,17 +61,11 @@ export function FeedCell({ item, index, rowHeight }: Props) {
     engine.toggleUserPause();
   };
 
-  const videoSource = useMemo(() => {
-    const av = toAvVideoSource(item.hlsUrl);
-    return { uri: av.uri, type: 'm3u8' as const };
-  }, [item.hlsUrl]);
-
   return (
     <Pressable style={[styles.row, { height: rowHeight }]} onPress={onTap}>
       {isOwner ? (
         <Video
           ref={videoRef}
-          source={videoSource}
           style={styles.media}
           resizeMode="contain"
           paused={ui.userPaused}
@@ -80,7 +74,8 @@ export function FeedCell({ item, index, rowHeight }: Props) {
           playInBackground={false}
           playWhenInactive={false}
           ignoreSilentSwitch="ignore"
-          useTextureView
+          progressUpdateInterval={1000}
+          useTextureView={Platform.OS !== 'android'}
           onLoadStart={() => {
             adapterRef.current?.emitNativeEvent({ kind: 'load_start' });
           }}

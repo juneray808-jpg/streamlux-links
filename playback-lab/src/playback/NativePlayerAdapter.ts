@@ -45,7 +45,7 @@ export class NativePlayerAdapter implements NativePlayerCommandSink {
     try {
       this.videoRef.current?.setSource?.(source as never);
     } catch {
-      // setSource may be unavailable until mount — source prop on Video is fallback
+      // setSource may be unavailable until mount
     }
   }
 
