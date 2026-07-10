@@ -1,0 +1,57 @@
+name: Playback Lab — EAS Build (optional)
+
+# Cloud build on Expo infrastructure. Requires EXPO_TOKEN repo secret.
+# Use playback-lab-build-apk.yml if you prefer free GitHub-hosted Gradle builds.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        required: true
+        default: preview-apk
+        type: choice
+        options:
+          - preview-apk
+          - development
+          - preview
+
+jobs:
+  eas-build:
+    name: EAS Android (${{ inputs.profile }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: playback-lab/package-lock.json
+
+      - name: Install dependencies
+        working-directory: playback-lab
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build on EAS
+        working-directory: playback-lab
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          eas build \
+            --platform android \
+            --profile "${{ inputs.profile }}" \
+            --non-interactive \
+            --no-wait
+        # Download link appears in Expo dashboard: https://expo.dev

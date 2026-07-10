@@ -24,7 +24,15 @@ npm install
 npx expo start --dev-client
 ```
 
-### EAS Dev Client build
+### GitHub Actions (APK download)
+
+See **`docs/GITHUB_ACTIONS.md`**.
+
+1. Add repo secrets: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+2. **Actions** → **Playback Lab — Build Android APK** → **Run workflow**
+3. Download artifact **Playback-Lab-APK** (standalone install, no Metro)
+
+### EAS Dev Client build (live Metro)
 
 ```bash
 npm install -g eas-cli
