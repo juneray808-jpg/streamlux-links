@@ -1,30 +1,44 @@
-import { FlashList } from '@shopify/flash-list';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useState } from 'react';
+import { FlashList, type ViewToken } from '@shopify/flash-list';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   LayoutChangeEvent,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import type { RootStackParamList } from '../app/RootNavigator';
 import { isSupabaseConfigured } from '../data/supabase';
+import type { FeedItem } from '../data/types';
 import { flattenFeedPages, useFeedQuery } from '../hooks/useFeedQuery';
-import { FeedRow } from './FeedRow';
+import { Phase1DevOverlay } from '../instrumentation/Phase1DevOverlay';
+import { FeedCell } from './FeedCell';
+import { useViewabilityBridge } from './ViewabilityBridge';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Feed'>;
-
-export function FeedScreen({ navigation }: Props) {
+/**
+ * Phase 1 feed — deterministic ownership only.
+ * FlashList proposes via ViewabilityBridge; PlaybackEngine commits.
+ */
+export function FeedScreen() {
   const [rowHeight, setRowHeight] = useState(0);
   const query = useFeedQuery();
   const items = flattenFeedPages(query.data?.pages);
+  const lastViewableRef = useRef<ViewToken<FeedItem>[]>([]);
+
+  const { viewabilityConfig, onViewableItemsChanged, onScrollSettled } =
+    useViewabilityBridge();
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const h = Math.round(e.nativeEvent.layout.height);
     if (h > 0) setRowHeight(h);
   }, []);
+
+  const handleViewableItemsChanged = useCallback(
+    (info: { viewableItems: ViewToken<FeedItem>[]; changed: ViewToken<FeedItem>[] }) => {
+      lastViewableRef.current = info.viewableItems;
+      onViewableItemsChanged(info);
+    },
+    [onViewableItemsChanged],
+  );
 
   if (!isSupabaseConfigured()) {
     return (
@@ -45,13 +59,17 @@ export function FeedScreen({ navigation }: Props) {
           data={items}
           keyExtractor={(item) => item.postId}
           extraData={rowHeight}
-          drawDistance={rowHeight * 2}
+          drawDistance={rowHeight}
           pagingEnabled
           snapToInterval={rowHeight}
           snapToAlignment="start"
           decelerationRate="fast"
           disableIntervalMomentum
           showsVerticalScrollIndicator={false}
+          viewabilityConfig={viewabilityConfig}
+          onViewableItemsChanged={handleViewableItemsChanged}
+          onMomentumScrollEnd={() => onScrollSettled(lastViewableRef.current)}
+          onScrollEndDrag={() => onScrollSettled(lastViewableRef.current)}
           onEndReached={() => {
             if (query.hasNextPage && !query.isFetchingNextPage) {
               void query.fetchNextPage();
@@ -59,7 +77,7 @@ export function FeedScreen({ navigation }: Props) {
           }}
           onEndReachedThreshold={0.6}
           renderItem={({ item, index }) => (
-            <FeedRow item={item} index={index} rowHeight={rowHeight} />
+            <FeedCell item={item} index={index} rowHeight={rowHeight} />
           )}
           ListEmptyComponent={
             query.isLoading ? (
@@ -89,12 +107,7 @@ export function FeedScreen({ navigation }: Props) {
         />
       ) : null}
 
-      <Pressable
-        style={styles.navButton}
-        onPress={() => navigation.navigate('Placeholder')}
-      >
-        <Text style={styles.navButtonText}>Nav test →</Text>
-      </Pressable>
+      {__DEV__ ? <Phase1DevOverlay /> : null}
     </View>
   );
 }
@@ -126,18 +139,5 @@ const styles = StyleSheet.create({
   footer: {
     paddingVertical: 16,
     alignItems: 'center',
-  },
-  navButton: {
-    position: 'absolute',
-    top: 8,
-    right: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: 8,
-  },
-  navButtonText: {
-    color: '#ccc',
-    fontSize: 12,
   },
 });
