@@ -1,15 +1,18 @@
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import { getPlaybackEngine } from '../playback/PlaybackEngine';
 import type { CellUiState, EngineSnapshot } from '../playback/types';
 
+const engine = getPlaybackEngine();
+const subscribe = (listener: () => void) => engine.subscribe(listener);
+const getSnapshot = () => engine.getSnapshot();
+
 export function usePlaybackEngineSnapshot(): EngineSnapshot {
-  const engine = getPlaybackEngine();
-  return useSyncExternalStore(engine.subscribe.bind(engine), () => engine.getSnapshot(), () => engine.getSnapshot());
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
 export function useCellUiState(postId: string): CellUiState {
   const snapshot = usePlaybackEngineSnapshot();
-  return snapshot.getCellUiState(postId);
+  return useMemo(() => snapshot.getCellUiState(postId), [snapshot, postId]);
 }
 
 export function useIsPlaybackOwner(postId: string): boolean {

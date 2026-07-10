@@ -50,6 +50,28 @@ describe('PlaybackEngine ownership', () => {
     assert.equal(instrumentationBus.countKind('ownership_rejected'), 1);
   });
 
+  it('returns stable snapshot references between bumps', () => {
+    const engine = getPlaybackEngine();
+
+    const before = engine.getSnapshot();
+    assert.equal(engine.getSnapshot(), before);
+
+    engine.proposeOwnership({
+      postId: 'post-a',
+      index: 0,
+      visibilityPercent: 0.9,
+      source: 'viewability',
+    });
+
+    const after = engine.getSnapshot();
+    assert.notEqual(after, before);
+    assert.equal(engine.getSnapshot(), after);
+    assert.equal(
+      after.getCellUiState('post-a'),
+      after.getCellUiState('post-a'),
+    );
+  });
+
   it('instruments user pause and resume', () => {
     const engine = getPlaybackEngine();
 

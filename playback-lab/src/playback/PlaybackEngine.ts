@@ -75,20 +75,41 @@ class PlaybackEngineImpl {
   private candidateStartedAt: number | null = null;
   private pendingCandidate: OwnershipCandidate | null = null;
 
+  /** Cached for useSyncExternalStore — must keep referential equality between bumps. */
+  private cachedSnapshot: EngineSnapshot | null = null;
+  private cellUiByPostId = new Map<string, CellUiState>();
+
   subscribe(listener: Listener): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
 
   getSnapshot(): EngineSnapshot {
+    if (this.cachedSnapshot) {
+      return this.cachedSnapshot;
+    }
+
     const owner = this.owner;
-    return {
+    this.cellUiByPostId.clear();
+
+    const getCellUiState = (postId: string): CellUiState => {
+      let cached = this.cellUiByPostId.get(postId);
+      if (!cached) {
+        cached = deriveCellUi(owner, postId);
+        this.cellUiByPostId.set(postId, cached);
+      }
+      return cached;
+    };
+
+    this.cachedSnapshot = {
       version: this.version,
       ownerPostId: owner?.postId ?? null,
       ownerIndex: owner?.index ?? -1,
       ownerGeneration: this.ownerGeneration,
-      getCellUiState: (postId: string) => deriveCellUi(owner, postId),
+      getCellUiState,
     };
+
+    return this.cachedSnapshot;
   }
 
   /** ViewabilityBridge proposes — engine validates and may commit. */
@@ -381,6 +402,8 @@ class PlaybackEngineImpl {
 
   private bump(): void {
     this.version += 1;
+    this.cachedSnapshot = null;
+    this.cellUiByPostId.clear();
     for (const listener of this.listeners) {
       listener();
     }
