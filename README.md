@@ -35,4 +35,5 @@ Marketing site pages are maintained in sync with `my-first-project/website/` whe
 
 `playback-lab/` — StreamLux vertical HLS playback engine laboratory (Expo Dev Client).  
 See `playback-lab/README.md` and `playback-lab/docs/ARCHITECTURE.md`.  
+**GitHub Actions:** `.github/workflows/playback-lab-*.yml` — CI + Android APK artifacts.  
 Does not affect `streamlux.io` Vercel deployment (site root unchanged).

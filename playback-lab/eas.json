@@ -13,7 +13,19 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "PLAYBACK_LAB_STANDALONE_BUILD": "1"
+      }
+    },
+    "preview-apk": {
+      "extends": "preview",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {}
   },
