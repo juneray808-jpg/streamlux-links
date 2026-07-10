@@ -11,3 +11,5 @@ web-build/
 .env
 .env.local
 .DS_Store
+playback-lab/.claude/
+AGENTS.md

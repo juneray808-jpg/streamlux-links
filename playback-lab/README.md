@@ -3,11 +3,16 @@
 Engineering laboratory for deterministic vertical HLS playback (React Native).  
 **Not a social app.** See `docs/ARCHITECTURE.md` (ADD v1.1, frozen).
 
-## Phase 0 (current)
+## Phase 1 (current)
 
-- Expo Dev Client scaffold (iOS + Android)
-- Read-only Supabase explore feed (`streamlux_feed_explore_ranked`)
-- Vertical FlashList with poster rows — **no video playback yet**
+- Singleton `PlaybackEngine` — ownership validation and commit only
+- `ViewabilityBridge` — proposes candidates (FlashList never commits)
+- `NativePlayerAdapter` — imperative react-native-video control
+- `FeedCell` — owner-only Video mount (single decoder)
+- Tap pause/play, ownership instrumentation, Phase 1 dev overlay
+- **No preload, corridor, lifecycle, or error recovery** (later phases)
+
+Validation: `docs/PHASE1_VALIDATION.md`
 
 ## Setup
 

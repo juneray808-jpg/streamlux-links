@@ -1,1 +1,3 @@
-Phase 1+ playback engine modules will be implemented here per `docs/ARCHITECTURE.md`.
+Phase 1: deterministic ownership proof — `PlaybackEngine`, `ViewabilityBridge`, `NativePlayerAdapter`, instrumentation.
+
+See `docs/PHASE1_VALIDATION.md` for exit criteria.
