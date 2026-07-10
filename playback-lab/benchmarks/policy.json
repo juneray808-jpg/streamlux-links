@@ -1,0 +1,11 @@
+{
+  "regression": {
+    "latencyP95MaxIncreasePercent": 15,
+    "requireAdrOnRegression": true
+  },
+  "correctness": {
+    "maxAudioOverlapPerSession": 0,
+    "maxBlackScreenPerSession": 0,
+    "maxOwnershipViolationsPerSession": 0
+  }
+}
