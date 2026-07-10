@@ -1,6 +1,7 @@
 import type { RefObject } from 'react';
 import type { VideoRef } from 'react-native-video';
 import { toAvVideoSource } from '../data/hlsUrl';
+import { instrumentationBus } from '../instrumentation/InstrumentationBus';
 import type { NativePlayerEvent } from './types';
 
 export type NativePlayerCommandSink = {
@@ -44,6 +45,11 @@ export class NativePlayerAdapter implements NativePlayerCommandSink {
     const source = toAvVideoSource(trimmed);
     try {
       this.videoRef.current?.setSource?.(source as never);
+      instrumentationBus.emit('imperative_set_source', {
+        postId: this.postId,
+        adapterId: this.adapterId,
+        meta: { urlLength: trimmed.length },
+      });
     } catch {
       // setSource may be unavailable until mount
     }

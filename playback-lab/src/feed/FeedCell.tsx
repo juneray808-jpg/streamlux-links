@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -32,6 +32,22 @@ export function FeedCell({ item, index, rowHeight }: Props) {
   const adapterRef = useRef<NativePlayerAdapter | null>(null);
 
   const isOwner = ui.isOwner;
+  const layoutSizeRef = useRef({ width: 0, height: 0 });
+
+  const onRowLayout = useCallback(
+    (width: number, height: number) => {
+      const prev = layoutSizeRef.current;
+      if (prev.width > 0 && (prev.width !== width || prev.height !== height)) {
+        instrumentationBus.emit('feed_cell_layout_reflow', {
+          postId: item.postId,
+          index,
+          meta: { width, height, prevWidth: prev.width, prevHeight: prev.height },
+        });
+      }
+      layoutSizeRef.current = { width, height };
+    },
+    [index, item.postId],
+  );
 
   useEffect(() => {
     if (!isOwner) {
@@ -62,7 +78,14 @@ export function FeedCell({ item, index, rowHeight }: Props) {
   };
 
   return (
-    <Pressable style={[styles.row, { height: rowHeight }]} onPress={onTap}>
+    <Pressable
+      style={[styles.row, { height: rowHeight }]}
+      onPress={onTap}
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        onRowLayout(Math.round(width), Math.round(height));
+      }}
+    >
       {isOwner ? (
         <Video
           ref={videoRef}

@@ -205,7 +205,7 @@ class PlaybackEngineImpl {
       meta: { ms: performance.now() - transferStart },
     });
 
-    this.bump();
+    this.bump('ownership_commit');
     this.activateOwnerIfReady();
   }
 
@@ -277,7 +277,7 @@ class PlaybackEngineImpl {
       });
       this.applyOwnerPlaybackIntent();
     }
-    this.bump();
+    this.bump('user_toggle');
   }
 
   private handleNativeEvent(event: NativePlayerEvent): void {
@@ -286,12 +286,14 @@ class PlaybackEngineImpl {
     }
 
     let dirty = false;
+    let bumpReason = 'native_event';
 
     switch (event.kind) {
       case 'load_start':
         if (this.owner.phase !== 'loading') {
           this.owner.phase = 'loading';
           dirty = true;
+          bumpReason = 'native_load_start';
         }
         instrumentationBus.emit('native_load_start', {
           postId: event.postId,
@@ -315,6 +317,7 @@ class PlaybackEngineImpl {
         ) {
           this.markFirstFrame();
           dirty = true;
+          bumpReason = 'first_frame';
         } else if (
           !this.owner.userPaused &&
           !this.owner.buffering &&
@@ -322,16 +325,19 @@ class PlaybackEngineImpl {
         ) {
           this.owner.phase = 'playing';
           dirty = true;
+          bumpReason = 'progress_phase';
         }
         break;
       case 'buffer':
         if (!this.owner.buffering) {
           this.owner.buffering = true;
           dirty = true;
+          bumpReason = 'native_buffer';
         }
         if (!this.owner.firstFrameRendered && this.owner.phase !== 'buffering') {
           this.owner.phase = 'buffering';
           dirty = true;
+          bumpReason = 'native_buffer';
         }
         instrumentationBus.emit('native_buffer_start', {
           postId: event.postId,
@@ -344,6 +350,7 @@ class PlaybackEngineImpl {
         if (this.owner.buffering) {
           this.owner.buffering = false;
           dirty = true;
+          bumpReason = 'native_end_buffer';
         }
         instrumentationBus.emit('native_buffer_end', {
           postId: event.postId,
@@ -354,12 +361,14 @@ class PlaybackEngineImpl {
         if (!this.owner.userPaused && this.owner.phase !== 'playing') {
           this.owner.phase = 'playing';
           dirty = true;
+          bumpReason = 'native_end_buffer';
         }
         break;
       case 'error':
         if (this.owner.phase !== 'error') {
           this.owner.phase = 'error';
           dirty = true;
+          bumpReason = 'native_error';
         }
         instrumentationBus.emit('native_error', {
           postId: event.postId,
@@ -374,7 +383,15 @@ class PlaybackEngineImpl {
     }
 
     if (dirty) {
-      this.bump();
+      this.bump(bumpReason);
+    } else if (event.kind === 'progress') {
+      instrumentationBus.emit('progress_snapshot_suppressed', {
+        postId: event.postId,
+        index: this.owner.index,
+        ownerGeneration: this.ownerGeneration,
+        adapterId: this.adapter?.adapterId,
+        meta: { currentTimeSec: event.currentTimeSec ?? 0 },
+      });
     }
   }
 
@@ -422,7 +439,7 @@ class PlaybackEngineImpl {
       this.adapter.pause();
       if (this.owner.phase !== 'paused') {
         this.owner.phase = 'paused';
-        this.bump();
+        this.bump('playback_intent_pause');
       }
       return;
     }
@@ -442,7 +459,7 @@ class PlaybackEngineImpl {
     const nextPhase = !this.owner.firstFrameRendered ? 'loading' : 'playing';
     if (this.owner.phase !== nextPhase) {
       this.owner.phase = nextPhase;
-      this.bump();
+      this.bump('playback_intent');
     }
   }
 
@@ -489,10 +506,21 @@ class PlaybackEngineImpl {
     this.audibleAdapterId = adapterId;
   }
 
-  private bump(): void {
+  private bump(reason: string): void {
     this.version += 1;
     this.cachedSnapshot = null;
     this.cellUiByPostId.clear();
+
+    if (this.owner) {
+      instrumentationBus.emit('engine_snapshot_bump', {
+        postId: this.owner.postId,
+        index: this.owner.index,
+        ownerGeneration: this.ownerGeneration,
+        adapterId: this.adapter?.adapterId,
+        meta: { reason, version: this.version },
+      });
+    }
+
     for (const listener of this.listeners) {
       listener();
     }

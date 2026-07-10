@@ -33,7 +33,8 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test:unit": "tsx --test src/**/*.test.ts",
-    "report:latency": "tsx scripts/generate-latency-report.ts"
+    "report:latency": "tsx scripts/generate-latency-report.ts",
+    "benchmark:pump-play": "tsx scripts/run-pump-play-benchmark.ts"
   },
   "private": true
 }
