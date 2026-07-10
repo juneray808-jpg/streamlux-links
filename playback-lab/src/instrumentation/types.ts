@@ -22,7 +22,12 @@ export type InstrumentKind =
   | 'user_resume'
   | 'native_error'
   | 'audio_overlap'
-  | 'ownership_violation';
+  | 'ownership_violation'
+  | 'engine_snapshot_bump'
+  | 'progress_snapshot_suppressed'
+  | 'imperative_set_source'
+  | 'video_source_prop_load'
+  | 'feed_cell_layout_reflow';
 
 export type PlaybackInstrumentEvent = {
   /** Monotonic timestamp (performance.now()). */

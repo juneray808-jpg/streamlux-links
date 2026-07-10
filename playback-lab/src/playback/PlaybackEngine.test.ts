@@ -1,7 +1,31 @@
 import assert from 'node:assert/strict';
 import { describe, it, beforeEach } from 'node:test';
 import { instrumentationBus } from '../instrumentation/InstrumentationBus';
+import { NativePlayerAdapter } from './NativePlayerAdapter';
+import type { NativePlayerEvent } from './types';
 import { getPlaybackEngine, resetPlaybackEngineForTests } from './PlaybackEngine';
+
+function createMockAdapter(postId: string) {
+  let handler: ((event: NativePlayerEvent) => void) | null = null;
+  const adapter = {
+    postId,
+    adapterId: `${postId}-mock`,
+    bindEventHandler(h: (event: NativePlayerEvent) => void) {
+      handler = h;
+    },
+    emitProgress(currentTimeSec: number) {
+      handler?.({ kind: 'progress', postId, currentTimeSec });
+    },
+    assignSource() {},
+    setVolume() {},
+    pause() {},
+    resume() {},
+    getAssignedUrl() {
+      return null;
+    },
+  };
+  return adapter as unknown as NativePlayerAdapter;
+}
 
 describe('PlaybackEngine ownership', () => {
   beforeEach(() => {
@@ -91,6 +115,29 @@ describe('PlaybackEngine ownership', () => {
       .getAll()
       .find((e) => e.kind === 'ownership_committed');
     assert.equal(committed?.deltaFromCommitMs, 0);
+  });
+
+  it('does not bump on progress while already playing', () => {
+    const engine = getPlaybackEngine();
+    const mock = createMockAdapter('post-a');
+
+    engine.proposeOwnership({
+      postId: 'post-a',
+      index: 0,
+      visibilityPercent: 0.9,
+      source: 'viewability',
+    });
+
+    engine.registerAdapter('post-a', mock, 'https://example.com/video.m3u8');
+    mock.emitProgress(0.05);
+
+    const afterFirstFrame = engine.getSnapshot().version;
+
+    for (let i = 0; i < 12; i++) {
+      mock.emitProgress(1 + i);
+    }
+
+    assert.equal(engine.getSnapshot().version, afterFirstFrame);
   });
 
   it('instruments user pause and resume', () => {
