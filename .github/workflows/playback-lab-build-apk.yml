@@ -129,6 +129,8 @@ jobs:
 
       - name: Tune Gradle for CI
         run: |
+          # Ensure trailing newline before append (prebuild file may omit final \n).
+          tail -c1 android/gradle.properties | od -An -t x1 | grep -q '0a' || echo >> android/gradle.properties
           {
             echo "org.gradle.warning.mode=none"
             echo "org.gradle.parallel=true"
@@ -136,6 +138,8 @@ jobs:
             echo "org.gradle.workers.max=2"
             echo "org.gradle.daemon=false"
           } >> android/gradle.properties
+          echo "--- gradle.properties tail ---"
+          tail -n 8 android/gradle.properties
 
       - name: Build release APK
         env:
