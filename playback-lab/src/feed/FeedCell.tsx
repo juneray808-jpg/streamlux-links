@@ -11,6 +11,7 @@ import Video, { type OnProgressData, type VideoRef } from 'react-native-video';
 import { toAvVideoSource } from '../data/hlsUrl';
 import type { FeedItem } from '../data/types';
 import { useCellUiState } from '../hooks/usePlaybackEngine';
+import { instrumentationBus } from '../instrumentation/InstrumentationBus';
 import { getPlaybackEngine } from '../playback/PlaybackEngine';
 import { NativePlayerAdapter } from '../playback/NativePlayerAdapter';
 
@@ -38,6 +39,13 @@ export function FeedCell({ item, index, rowHeight }: Props) {
       return;
     }
 
+    const snapshot = engine.getSnapshot();
+    instrumentationBus.emit('react_cell_becomes_owner', {
+      postId: item.postId,
+      index,
+      ownerGeneration: snapshot.ownerGeneration,
+    });
+
     const adapter = new NativePlayerAdapter(item.postId, videoRef);
     adapterRef.current = adapter;
     engine.registerAdapter(item.postId, adapter, item.hlsUrl);
@@ -46,7 +54,7 @@ export function FeedCell({ item, index, rowHeight }: Props) {
       engine.unregisterAdapter(item.postId);
       adapterRef.current = null;
     };
-  }, [engine, isOwner, item.hlsUrl, item.postId]);
+  }, [engine, isOwner, index, item.hlsUrl, item.postId]);
 
   const onTap = () => {
     if (!ui.isOwner) return;
