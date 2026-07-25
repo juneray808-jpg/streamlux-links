@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.terry.streamlux.io",
       "sha256_cert_fingerprints": [
-        "BD:35:5A:78:14:EA:E8:2C:B7:AE:EC:EC:DA:61:C0:1B:FA:07:DA:92:4F:F5:E7:26:7F:3C:1D:1F:F6:8F:C5:97"
+        "BD:35:5A:78:14:EA:E8:2C:B7:AE:EC:EC:DA:61:C0:1B:FA:07:DA:92:4F:F5:E7:26:7F:3C:1D:1F:F6:8F:C5:97",
+        "51:11:BC:7E:64:9D:4F:90:E6:CA:2D:B2:CA:07:72:57:59:4F:46:F4:50:F2:67:AD:4C:91:D2:FD:35:95:E6:EC"
       ]
     }
   }
