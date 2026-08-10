@@ -14,12 +14,14 @@ Hosted on **Vercel** → domain `streamlux.io`.
 | `/livestream.html` | Upcoming live features |
 | `/contact.html` | support@streamlux.io |
 | `/child-safety.html` | Child safety standards (Play Store) |
+| `/privacy-policy.html` | Privacy Policy (Play Console) |
+| `/account-deletion.html` | Account & data deletion (Play Console) |
 | `/open.html` | Deep-link fallback for `/post`, `/profile`, `/live` |
 
-## Legal (GitHub Pages — Play Console URLs unchanged)
+## Legal (streamlux.io — Play Console URLs)
 
-- Privacy: `https://juneray808-jpg.github.io/my-first-project/privacy-policy.html`
-- Account deletion: `https://juneray808-jpg.github.io/my-first-project/account-deletion.html`
+- Privacy: `https://streamlux.io/privacy-policy.html`
+- Account deletion: `https://streamlux.io/account-deletion.html`
 
 ## Do not remove
 
@@ -30,10 +32,3 @@ Hosted on **Vercel** → domain `streamlux.io`.
 ## Source
 
 Marketing site pages are maintained in sync with `my-first-project/website/` when updated.
-
-## Playback Lab
-
-`playback-lab/` — StreamLux vertical HLS playback engine laboratory (Expo Dev Client).  
-See `playback-lab/README.md` and `playback-lab/docs/ARCHITECTURE.md`.  
-**GitHub Actions:** `.github/workflows/playback-lab-*.yml` — CI + Android APK artifacts.  
-Does not affect `streamlux.io` Vercel deployment (site root unchanged).

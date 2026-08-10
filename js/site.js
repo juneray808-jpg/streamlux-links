@@ -1,10 +1,8 @@
 (function () {
   var PLAY_STORE =
     'https://play.google.com/store/apps/details?id=com.terry.streamlux.io';
-  var PRIVACY_URL =
-    'https://juneray808-jpg.github.io/my-first-project/privacy-policy.html';
-  var DELETION_URL =
-    'https://juneray808-jpg.github.io/my-first-project/account-deletion.html';
+  var PRIVACY_URL = '/privacy-policy.html';
+  var DELETION_URL = '/account-deletion.html';
   var SUPPORT_EMAIL = 'support@streamlux.io';
 
   var NAV = [
