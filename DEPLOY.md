@@ -46,7 +46,8 @@ npm run assetlinks:verify:play   # run from my-first-project
 | Livestream | https://streamlux.io/livestream.html |
 | Contact | https://streamlux.io/contact.html |
 | Child safety | https://streamlux.io/child-safety.html |
-| Privacy policy | https://streamlux.io/privacy-policy.html |
+| Privacy Policy | https://streamlux.io/privacy-policy.html |
 | Account deletion | https://streamlux.io/account-deletion.html |
+| AdMob app-ads.txt | https://streamlux.io/app-ads.txt |
 
-Play Console legal URLs are on streamlux.io (see `docs/LEGAL_PAGES.md` in my-first-project).
+Use these URLs in **Play Console** (Store listing → Privacy policy, App content → Data safety, Ads declaration).

@@ -1,0 +1,23 @@
+name: Verify assetlinks.json
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.well-known/assetlinks.json'
+      - 'scripts/**'
+  pull_request:
+    paths:
+      - '.well-known/assetlinks.json'
+      - 'scripts/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate committed assetlinks.json shape
+        run: node scripts/verify-assetlinks.mjs --local .well-known/assetlinks.json
