@@ -20,9 +20,7 @@
 <script>
   (function () {
     var parts = window.location.pathname.split('/').filter(Boolean);
-    var type = parts[0] || '';
-    var id = parts[1] || '';
-    var deep = id ? ('streamlux://' + type + '/' + id) : 'streamlux://';
+    var deep = parts.length > 0 ? ('streamlux://' + parts.join('/')) : 'streamlux://';
     document.getElementById('openBtn').setAttribute('href', deep);
     setTimeout(function () { window.location.href = deep; }, 400);
   })();

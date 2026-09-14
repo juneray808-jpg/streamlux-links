@@ -3,16 +3,14 @@
   "rewrites": [
     { "source": "/post/:id", "destination": "/open.html" },
     { "source": "/profile/:id", "destination": "/open.html" },
-    { "source": "/live/:id", "destination": "/open.html" }
+    { "source": "/live/:id", "destination": "/open.html" },
+    { "source": "/story/:path*", "destination": "/open.html" },
+    { "source": "/highlight/:path*", "destination": "/open.html" }
   ],
   "headers": [
     {
       "source": "/.well-known/assetlinks.json",
       "headers": [{ "key": "Content-Type", "value": "application/json" }]
-    },
-    {
-      "source": "/app-ads.txt",
-      "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]
     }
   ]
 }
